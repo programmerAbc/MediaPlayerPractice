@@ -20,7 +20,7 @@ import butterknife.OnClick;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG=MainActivity.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_CODE_CHOOSE_FILE = 0x01;
     public static final String EXTRA_KEY_MOVIE_FILE = "EXTRA_KEY_MOVIE_FILE";
 
@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
-
         PermissionUtil.requestPermission(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE});
     }
 
@@ -66,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(this, FileChooserActivity.class), REQUEST_CODE_CHOOSE_FILE);
                 break;
             case R.id.streamMediaBtn:
+                startActivity(new Intent(this, StreamMediaActivity.class));
                 break;
         }
     }
@@ -89,19 +88,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_CODE_CHOOSE_FILE:
-                Log.e(TAG,"onActivityResult:");
                 if (resultCode == RESULT_OK) {
                     final Uri uri = data.getData();
                     String path = FileUtils.getPath(this, uri);
-                    Log.e(TAG,"onActivityResult:"+path);
                     if (path != null && FileUtils.isLocal(path)) {
-                        Log.e(TAG,"onActivityResult:here");
                         File file = new File(path);
                         Intent intent = new Intent(this, LocalMediaActivity.class);
                         intent.putExtra(EXTRA_KEY_MOVIE_FILE, file);
                         startActivity(intent);
                     }
-                }else{
+                } else {
                     Log.e(TAG, "onActivityResult: result error");
                 }
                 break;
