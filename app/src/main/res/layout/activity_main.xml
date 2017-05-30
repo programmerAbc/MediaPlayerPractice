@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="10dp"
+    tools:context="com.practice.mediaplayer.MainActivity">
+
+    <Button
+        android:layout_margin="10dp"
+        android:id="@+id/localMediaBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="本地视频" />
+
+    <Button
+        android:layout_margin="10dp"
+        android:id="@+id/streamMediaBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="流媒体视频" />
+</LinearLayout>
