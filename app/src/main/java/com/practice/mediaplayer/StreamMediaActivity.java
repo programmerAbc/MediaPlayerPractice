@@ -2,6 +2,7 @@ package com.practice.mediaplayer;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -22,7 +23,7 @@ import butterknife.OnClick;
 import static android.view.View.GONE;
 
 public class StreamMediaActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener {
-    private static final String TAG=StreamMediaActivity.class.getSimpleName();
+    private static final String TAG = StreamMediaActivity.class.getSimpleName();
     @BindView(R.id.movieTxv)
     TextureView movieTxv;
     @BindView(R.id.replayIBtn)
@@ -40,6 +41,25 @@ public class StreamMediaActivity extends AppCompatActivity implements TextureVie
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                int videoHeight = mp.getVideoHeight();
+                int videoWidth = mp.getVideoWidth();
+                int viewWidth = movieTxv.getMeasuredWidth();
+                int viewHeight = movieTxv.getMeasuredHeight();
+                int newWidth, newHeight;
+                float aspectRatio = (float) videoWidth / videoHeight;
+                if (viewHeight >= viewWidth / aspectRatio) {
+                    newWidth = viewWidth;
+                    newHeight = (int) (viewWidth / aspectRatio);
+                } else {
+                    newWidth = (int) (viewHeight * aspectRatio);
+                    newHeight = viewHeight;
+                }
+                int xoff = (viewWidth - newWidth) / 2;
+                int yoff = (viewHeight - newHeight) / 2;
+                Matrix txform = new Matrix();
+                txform.setScale((float) newWidth / viewWidth, (float) newHeight / viewHeight);
+                txform.postTranslate(xoff, yoff);
+                movieTxv.setTransform(txform);
                 mp.start();
             }
         });
@@ -62,7 +82,6 @@ public class StreamMediaActivity extends AppCompatActivity implements TextureVie
                 valueAnimator.start();
             }
         });
-
 
 
     }
@@ -117,7 +136,7 @@ public class StreamMediaActivity extends AppCompatActivity implements TextureVie
             mediaPlayer.setSurface(new Surface(surface));
             mediaPlayer.prepareAsync();
         } catch (Exception e) {
-            Log.e(TAG,"onSurfaceTextureAvailable:"+Log.getStackTraceString(e));
+            Log.e(TAG, "onSurfaceTextureAvailable:" + Log.getStackTraceString(e));
             Toast.makeText(this, "打开文件失败", Toast.LENGTH_SHORT).show();
             finish();
         }

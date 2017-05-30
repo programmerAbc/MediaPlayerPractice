@@ -2,11 +2,15 @@ package com.practice.mediaplayer;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -23,24 +27,46 @@ import butterknife.OnClick;
 import static android.view.View.GONE;
 
 public class LocalMediaActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener {
+    private static final String TAG = LocalMediaActivity.class.getSimpleName();
     @BindView(R.id.movieTxv)
     TextureView movieTxv;
     File movieFile;
     MediaPlayer mediaPlayer;
     @BindView(R.id.replayIBtn)
     ImageButton replayIBtn;
+    Handler mainHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_local_media);
         ButterKnife.bind(this);
+        mainHandler = new Handler(Looper.getMainLooper());
         movieTxv.setSurfaceTextureListener(this);
         movieFile = (File) getIntent().getSerializableExtra(MainActivity.EXTRA_KEY_MOVIE_FILE);
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                int videoHeight = mp.getVideoHeight();
+                int videoWidth = mp.getVideoWidth();
+                int viewWidth = movieTxv.getMeasuredWidth();
+                int viewHeight = movieTxv.getMeasuredHeight();
+                int newWidth, newHeight;
+                float aspectRatio = (float) videoWidth / videoHeight;
+                if (viewHeight >= viewWidth / aspectRatio) {
+                    newWidth = viewWidth;
+                    newHeight = (int) (viewWidth / aspectRatio);
+                } else {
+                    newWidth = (int) (viewHeight * aspectRatio);
+                    newHeight = viewHeight;
+                }
+                int xoff = (viewWidth - newWidth) / 2;
+                int yoff = (viewHeight - newHeight) / 2;
+                Matrix txform = new Matrix();
+                txform.setScale((float) newWidth / viewWidth, (float) newHeight / viewHeight);
+                txform.postTranslate(xoff, yoff);
+                movieTxv.setTransform(txform);
                 mp.start();
             }
         });
